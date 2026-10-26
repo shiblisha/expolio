@@ -11,6 +11,7 @@ import '../../../../core/enums/transaction_type.dart';
 import '../../../../core/currency/currency_cubit.dart';
 import '../../../../core/currency/currency_state.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../shared/widgets/app_loading_indicator.dart';
 import '../../../categories/domain/entities/category_entity.dart';
 import '../../../categories/presentation/bloc/category_bloc.dart';
 import '../../../categories/presentation/bloc/category_event.dart';
@@ -263,7 +264,7 @@ class _RecurringTransactionsPageState
                 ? const SizedBox(
                     width: 20,
                     height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                    child: AppLoadingIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.refresh_rounded),
           ),
@@ -276,7 +277,7 @@ class _RecurringTransactionsPageState
                 physics: AlwaysScrollableScrollPhysics(),
                 children: [
                   SizedBox(height: 250),
-                  Center(child: CircularProgressIndicator()),
+                  Center(child: AppLoadingIndicator()),
                 ],
               )
             : _items.isEmpty
@@ -871,7 +872,7 @@ class _RecurringTransactionEditorState
                           ? const SizedBox(
                               width: 22,
                               height: 22,
-                              child: CircularProgressIndicator(
+                              child: AppLoadingIndicator(
                                 strokeWidth: 2,
                                 color: Colors.white,
                               ),

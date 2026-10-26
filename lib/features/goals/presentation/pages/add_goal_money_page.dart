@@ -5,6 +5,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../core/currency/currency_cubit.dart';
 import '../../../../core/currency/currency_state.dart';
 import '../../../../core/enums/app_currency.dart';
+import '../../../../shared/widgets/app_loading_indicator.dart';
 import '../../../../shared/widgets/currency_text.dart';
 
 import '../../../wallet/domain/entities/wallet_entity.dart';
@@ -361,7 +362,7 @@ class _AddGoalMoneyPageState
                 goalState.goals.isEmpty) {
               return const Center(
                 child:
-                CircularProgressIndicator(
+                AppLoadingIndicator(
                   color:
                   AppColors.primary,
                 ),
@@ -1080,7 +1081,7 @@ class _AddGoalMoneyPageState
                           width: 20,
                           height: 20,
                           child:
-                          CircularProgressIndicator(
+                          AppLoadingIndicator(
                             strokeWidth:
                             2.2,
                             color: Colors

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/enums/category_type.dart';
+import '../../../../shared/widgets/app_loading_indicator.dart';
 import '../../domain/entities/category_entity.dart';
 import '../bloc/category_bloc.dart';
 import '../bloc/category_event.dart';
@@ -184,7 +185,7 @@ class _CategoriesPageState extends State<CategoriesPage>
                   if (state.status == CategoryStatus.loading &&
                       state.categories.isEmpty) {
                     return const Center(
-                      child: CircularProgressIndicator(),
+                      child: AppLoadingIndicator(),
                     );
                   }
 

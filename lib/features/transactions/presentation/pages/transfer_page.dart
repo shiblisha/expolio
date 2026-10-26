@@ -7,6 +7,7 @@ import '../../../../core/currency/currency_state.dart';
 import '../../../../core/enums/app_currency.dart';
 import '../../../../core/enums/payment_method.dart';
 import '../../../../core/enums/transaction_type.dart';
+import '../../../../shared/widgets/app_loading_indicator.dart';
 import '../../../wallet/presentation/bloc/wallet_bloc.dart';
 import '../../../wallet/presentation/bloc/wallet_state.dart';
 import '../../domain/entities/transaction_entity.dart';
@@ -377,7 +378,7 @@ class _TransferPageState extends State<TransferPage> {
                   ? const SizedBox(
                       width: 23,
                       height: 23,
-                      child: CircularProgressIndicator(
+                      child: AppLoadingIndicator(
                         color: Colors.white,
                         strokeWidth: 2.5,
                       ),

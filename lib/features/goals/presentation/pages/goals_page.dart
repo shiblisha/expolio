@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../shared/widgets/app_loading_indicator.dart';
 import 'add_goal_money_page.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/currency/currency_state.dart';
@@ -58,7 +59,7 @@ class _GoalsPageState extends State<GoalsPage> {
           if (state.status == SavingsGoalStatusState.loading &&
               state.goals.isEmpty) {
             return const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
+              child: AppLoadingIndicator(color: AppColors.primary),
             );
           }
 
@@ -1155,7 +1156,7 @@ class _GoalEditorDialogState extends State<_GoalEditorDialog> {
               ? const SizedBox(
                   width: 18,
                   height: 18,
-                  child: CircularProgressIndicator(
+                  child: AppLoadingIndicator(
                     strokeWidth: 2,
                     color: Colors.white,
                   ),

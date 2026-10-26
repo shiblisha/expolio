@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../app/theme/app_colors.dart';
 import '../../../../../core/services/auth_service.dart';
+import '../../../../shared/widgets/app_loading_dialog.dart';
 import 'signup_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -30,27 +31,45 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _signInWithEmail() async {
     if (!_formKey.currentState!.validate()) return;
 
-    await _runAuthAction(() async {
-      await _authService.signInWithEmail(
-        email: _emailController.text,
-        password: _passwordController.text,
-      );
+    final success = await _runAuthAction(
+      message: 'Signing you in...',
+      action: () async {
+        await _authService.signInWithEmail(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
+      },
+    );
+
+    if (success) {
       _closeIfPushed();
-    });
+    }
   }
 
   Future<void> _signInWithGoogle() async {
-    await _runAuthAction(() async {
-      await _authService.signInWithGoogle();
+    final success = await _runAuthAction(
+      message: 'Signing in with Google...',
+      action: () async {
+        await _authService.signInWithGoogle();
+      },
+    );
+
+    if (success) {
       _closeIfPushed();
-    });
+    }
   }
 
   Future<void> _continueAsGuest() async {
-    await _runAuthAction(() async {
-      await _authService.continueAsGuest();
+    final success = await _runAuthAction(
+      message: 'Continuing as guest...',
+      action: () async {
+        await _authService.continueAsGuest();
+      },
+    );
+
+    if (success) {
       _closeIfPushed();
-    });
+    }
   }
 
   Future<void> _resetPassword() async {
@@ -66,37 +85,53 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    await _runAuthAction(() async {
-      await _authService.sendPasswordResetEmail(email);
+    await _runAuthAction(
+      message: 'Sending password reset email...',
+      action: () async {
+        await _authService.sendPasswordResetEmail(email);
 
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Password reset email sent. Check your inbox.'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    });
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Password reset email sent. Check your inbox.'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      },
+    );
   }
 
-  Future<void> _runAuthAction(Future<void> Function() action) async {
-    if (_isLoading) return;
+  Future<bool> _runAuthAction({
+    required Future<void> Function() action,
+    required String message,
+  }) async {
+    if (_isLoading) return false;
 
     setState(() {
       _isLoading = true;
     });
 
+    AppLoadingDialog.show(context, message: message);
+
     try {
       await action();
+      return true;
     } catch (error) {
-      if (!mounted) return;
+      if (!mounted) return false;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(_authService.messageForException(error)),
           behavior: SnackBarBehavior.floating,
         ),
       );
+
+      return false;
     } finally {
+      // Always close the shared loading dialog, even if authentication
+      // already navigated away from this page.
+      AppLoadingDialog.hide();
+
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -283,22 +318,21 @@ class _LoginPageState extends State<LoginPage> {
   Widget _buildBrandHeader(ThemeData theme) {
     return Column(
       children: [
-        Container(
-          width: 76,
-          height: 76,
-          decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.10),
-            borderRadius: BorderRadius.circular(24),
-          ),
-          child: const Icon(
-            Icons.account_balance_wallet_rounded,
-            color: AppColors.primary,
-            size: 38,
+        Card(
+          elevation: 5,
+          child: Container(
+            width: 85,
+            height: 85,
+            decoration: BoxDecoration(
+              color: AppColors.primaryDark,
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Image.asset('assets/icons/login_icon.png'),
           ),
         ),
         const SizedBox(height: 14),
         Text(
-          'MoneyFlow',
+          'Expolio',
           style: theme.textTheme.headlineSmall?.copyWith(
             color: AppColors.primary,
             fontWeight: FontWeight.w900,
@@ -310,10 +344,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildLabel(String label) {
-    return Text(
-      label,
-      style: const TextStyle(fontWeight: FontWeight.w800),
-    );
+    return Text(label, style: const TextStyle(fontWeight: FontWeight.w800));
   }
 
   Widget _buildTextField({
@@ -353,10 +384,7 @@ class _LoginPageState extends State<LoginPage> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(17),
-          borderSide: const BorderSide(
-            color: AppColors.primary,
-            width: 1.4,
-          ),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.4),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(17),
@@ -416,22 +444,10 @@ class _PrimaryAuthButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(17),
           ),
         ),
-        child: loading
-            ? const SizedBox(
-                width: 22,
-                height: 22,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2.5,
-                ),
-              )
-            : Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
+        child: Text(
+          label,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+        ),
       ),
     );
   }
@@ -441,10 +457,7 @@ class _GoogleButton extends StatelessWidget {
   final bool loading;
   final VoidCallback onPressed;
 
-  const _GoogleButton({
-    required this.loading,
-    required this.onPressed,
-  });
+  const _GoogleButton({required this.loading, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -455,19 +468,7 @@ class _GoogleButton extends StatelessWidget {
       height: 54,
       child: OutlinedButton.icon(
         onPressed: loading ? null : onPressed,
-        icon: loading
-            ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2.2),
-              )
-            : const Text(
-                'G',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
+        icon: Image.asset("assets/icons/google.png", width: 35, height: 35),
         label: const Text('Continue with Google'),
         style: OutlinedButton.styleFrom(
           foregroundColor: theme.textTheme.bodyLarge?.color,

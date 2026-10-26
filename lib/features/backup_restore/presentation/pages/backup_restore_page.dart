@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
+import '../../../../shared/widgets/app_loading_indicator.dart';
 import '../../data/backup_restore_service.dart';
 
 class BackupRestorePage extends StatefulWidget {
@@ -219,7 +220,7 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
           ),
           if (_working) ...[
             const SizedBox(height: 24),
-            const Center(child: CircularProgressIndicator()),
+            const Center(child: AppLoadingIndicator()),
           ],
         ],
       ),

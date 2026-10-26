@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/enums/transaction_type.dart';
+import '../../../../shared/widgets/app_loading_indicator.dart';
 import '../../../../shared/widgets/currency_text.dart';
 import '../../domain/entities/transaction_entity.dart';
 import '../bloc/transaction_bloc.dart';
@@ -39,7 +40,7 @@ class TransactionsPage extends StatelessWidget {
           if (state.status == TransactionStatus.loading &&
               state.transactions.isEmpty) {
             return const Center(
-              child: CircularProgressIndicator(
+              child: AppLoadingIndicator(
                 color: AppColors.primary,
               ),
             );

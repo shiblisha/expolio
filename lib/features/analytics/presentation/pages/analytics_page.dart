@@ -12,6 +12,7 @@ import 'package:printing/printing.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/enums/payment_method.dart';
 import '../../../../core/enums/transaction_type.dart';
+import '../../../../shared/widgets/app_loading_indicator.dart';
 import '../../../../shared/widgets/currency_text.dart';
 import '../../../transactions/domain/entities/transaction_entity.dart';
 import '../../../transactions/presentation/bloc/transaction_bloc.dart';
@@ -66,7 +67,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
           if (state.status == TransactionStatus.loading &&
               state.transactions.isEmpty) {
             return const Center(
-              child: CircularProgressIndicator(
+              child: AppLoadingIndicator(
                 color: AppColors.primary,
               ),
             );

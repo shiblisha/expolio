@@ -14,6 +14,7 @@ import '../../../../core/enums/transaction_type.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/notifications/local_notification_service.dart';
 
+import '../../../../shared/widgets/app_loading_indicator.dart';
 import '../../../categories/domain/entities/category_entity.dart';
 import '../../../categories/presentation/bloc/category_bloc.dart';
 import '../../../categories/presentation/bloc/category_event.dart';
@@ -626,7 +627,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   : AppColors.lightSurface,
               borderRadius: BorderRadius.circular(18),
             ),
-            child: const CircularProgressIndicator(),
+            child: const AppLoadingIndicator(),
           );
         }
 

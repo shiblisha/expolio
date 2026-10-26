@@ -11,6 +11,7 @@ import '../../../../core/enums/category_type.dart';
 import '../../../../core/enums/transaction_type.dart';
 import '../../../../core/utils/currency_formatter.dart';
 
+import '../../../../shared/widgets/app_loading_indicator.dart';
 import '../../../categories/domain/entities/category_entity.dart';
 import '../../../categories/presentation/bloc/category_bloc.dart';
 import '../../../categories/presentation/bloc/category_event.dart';
@@ -276,7 +277,7 @@ class _BudgetPageState extends State<BudgetPage> {
                         ),
                         child: Center(
                           child:
-                          CircularProgressIndicator(),
+                          AppLoadingIndicator(),
                         ),
                       )
                     else if (budgets.isEmpty)
@@ -1479,7 +1480,7 @@ class _BudgetEditorDialogState
                         width: 22,
                         height: 22,
                         child:
-                        CircularProgressIndicator(
+                        AppLoadingIndicator(
                           strokeWidth:
                           2.5,
                         ),

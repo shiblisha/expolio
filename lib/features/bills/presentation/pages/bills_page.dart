@@ -7,6 +7,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../core/currency/currency_cubit.dart';
 import '../../../../core/currency/currency_state.dart';
 import '../../../../core/enums/app_currency.dart';
+import '../../../../shared/widgets/app_loading_indicator.dart';
 import '../../../../shared/widgets/currency_text.dart';
 import '../../../wallet/presentation/bloc/wallet_bloc.dart';
 import '../../../wallet/presentation/bloc/wallet_state.dart';
@@ -40,7 +41,7 @@ class BillsPage extends StatelessWidget {
         builder: (context, state) {
           if (state.status == BillStatus.loading && state.bills.isEmpty) {
             return const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
+              child: AppLoadingIndicator(color: AppColors.primary),
             );
           }
 

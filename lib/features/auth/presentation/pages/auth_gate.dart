@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../app/theme/app_colors.dart';
 import '../../../../../core/services/auth_service.dart';
+import '../../../../shared/widgets/app_loading_indicator.dart';
 import 'login_page.dart';
 
 /// Keeps authentication routing separate from the app shell.
@@ -27,7 +28,7 @@ class AuthGate extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(
-              child: CircularProgressIndicator(
+              child: AppLoadingIndicator(
                 color: AppColors.primary,
               ),
             ),

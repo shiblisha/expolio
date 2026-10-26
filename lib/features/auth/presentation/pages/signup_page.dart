@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../app/theme/app_colors.dart';
 import '../../../../../core/services/auth_service.dart';
+import '../../../../shared/widgets/app_loading_dialog.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -34,41 +35,69 @@ class _SignupPageState extends State<SignupPage> {
   Future<void> _createAccount() async {
     if (!_formKey.currentState!.validate()) return;
 
-    await _runAuthAction(() async {
-      await _authService.createAccountWithEmail(
-        email: _emailController.text,
-        password: _passwordController.text,
-        displayName: _nameController.text,
-      );
+    final success = await _runAuthAction(
+      message: 'Creating your account...',
+      action: () async {
+        await _authService.createAccountWithEmail(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+          displayName: _nameController.text.trim(),
+        );
+      },
+    );
+
+    if (success) {
       _closeIfPushed();
-    });
+    }
   }
 
   Future<void> _createWithGoogle() async {
-    await _runAuthAction(() async {
-      await _authService.signInWithGoogle();
+    final success = await _runAuthAction(
+      message: 'Signing in with Google...',
+      action: () async {
+        await _authService.signInWithGoogle();
+      },
+    );
+
+    if (success) {
       _closeIfPushed();
-    });
+    }
   }
 
-  Future<void> _runAuthAction(Future<void> Function() action) async {
-    if (_isLoading) return;
+  Future<bool> _runAuthAction({
+    required Future<void> Function() action,
+    required String message,
+  }) async {
+    if (_isLoading) return false;
 
     setState(() {
       _isLoading = true;
     });
 
+    AppLoadingDialog.show(
+      context,
+      message: message,
+    );
+
     try {
       await action();
+      return true;
     } catch (error) {
-      if (!mounted) return;
+      if (!mounted) return false;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(_authService.messageForException(error)),
           behavior: SnackBarBehavior.floating,
         ),
       );
+
+      return false;
     } finally {
+      // Always close the shared loading dialog, even if authentication
+      // already navigated away from this page.
+      AppLoadingDialog.hide();
+
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -183,7 +212,9 @@ class _SignupPageState extends State<SignupPage> {
                       obscureText: _obscurePassword,
                       textInputAction: TextInputAction.next,
                       suffixIcon: IconButton(
-                        onPressed: () {
+                        onPressed: _isLoading
+                            ? null
+                            : () {
                           setState(() {
                             _obscurePassword = !_obscurePassword;
                           });
@@ -211,10 +242,12 @@ class _SignupPageState extends State<SignupPage> {
                       obscureText: _obscureConfirmPassword,
                       textInputAction: TextInputAction.done,
                       suffixIcon: IconButton(
-                        onPressed: () {
+                        onPressed: _isLoading
+                            ? null
+                            : () {
                           setState(() {
                             _obscureConfirmPassword =
-                                !_obscureConfirmPassword;
+                            !_obscureConfirmPassword;
                           });
                         },
                         icon: Icon(
@@ -239,28 +272,19 @@ class _SignupPageState extends State<SignupPage> {
                           backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
                           disabledBackgroundColor:
-                              AppColors.primary.withValues(alpha: 0.45),
+                          AppColors.primary.withValues(alpha: 0.45),
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(17),
                           ),
                         ),
-                        child: _isLoading
-                            ? const SizedBox(
-                                width: 22,
-                                height: 22,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2.5,
-                                ),
-                              )
-                            : const Text(
-                                'Create Account',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
+                        child: const Text(
+                          'Create Account',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 22),
@@ -286,21 +310,7 @@ class _SignupPageState extends State<SignupPage> {
                       height: 54,
                       child: OutlinedButton.icon(
                         onPressed: _isLoading ? null : _createWithGoogle,
-                        icon: _isLoading
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.2,
-                                ),
-                              )
-                            : const Text(
-                                'G',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w900,
-                                ),
-                              ),
+                        icon: Image.asset("assets/icons/google.png", width: 35, height: 35),
                         label: const Text('Continue with Google'),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: theme.textTheme.bodyLarge?.color,
@@ -415,7 +425,10 @@ class _SignupPageState extends State<SignupPage> {
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(17),
-          borderSide: const BorderSide(color: AppColors.expense, width: 1.4),
+          borderSide: const BorderSide(
+            color: AppColors.expense,
+            width: 1.4,
+          ),
         ),
       ),
     );
