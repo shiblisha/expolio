@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "926087887463",
+    "project_id": "income-expense-43de2",
+    "storage_bucket": "income-expense-43de2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:926087887463:android:0572179bc41bdc0f0532c2",
+        "android_client_info": {
+          "package_name": "com.shibli.income_expence"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "926087887463-ek8uutbtco8ge3ks18ilrll4motspvh4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.shibli.income_expence",
+            "certificate_hash": "b59ded1618e5f38c8f350d85f59e7f48ab905a00"
+          }
+        },
+        {
+          "client_id": "926087887463-l63blocken6b6fjm4j13ds2mhf4hig63.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-A7qTTfz8L7LaFJAy4FL37j-BVNKpRTI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "926087887463-l63blocken6b6fjm4j13ds2mhf4hig63.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "926087887463-8b365p6ti0hrrb0dsr4s0ualku3e4j5q.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.shibli.incomeExpence"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
