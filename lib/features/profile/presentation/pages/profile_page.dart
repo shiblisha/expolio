@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/theme/theme_settings.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/currency/currency_cubit.dart';
@@ -19,9 +20,6 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final theme = Theme.of(context);
-
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, authSnapshot) {
@@ -72,18 +70,21 @@ class ProfilePage extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 12),
-              _buildSettingsTile(
-                context,
-                icon: Icons.dark_mode_outlined,
-                iconColor: Colors.deepPurple,
-                title: 'Dark Mode',
-                subtitle: isDark
-                    ? 'Dark theme enabled'
-                    : 'Light theme enabled',
-                trailing: Switch(
-                  value: isDark,
-                  onChanged: (_) => onThemeToggle(),
-                ),
+              AnimatedBuilder(
+                animation: ThemeSettings.instance,
+                builder: (context, _) {
+                  final settings = ThemeSettings.instance;
+
+                  return _buildSettingsTile(
+                    context,
+                    icon: settings.icon,
+                    iconColor: AppColors.primary,
+                    title: 'Theme',
+                    subtitle: settings.label,
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => _showThemeSelector(context),
+                  );
+                },
               ),
               const SizedBox(height: 24),
               if (user != null && !user.isAnonymous)
@@ -332,6 +333,94 @@ class ProfilePage extends StatelessWidget {
   }
 
   // =============================================================
+  // THEME SELECTOR
+  // =============================================================
+
+  Future<void> _showThemeSelector(BuildContext context) async {
+    final settings = ThemeSettings.instance;
+
+    final selected = await showModalBottomSheet<ThemeMode>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        final sheetTheme = Theme.of(sheetContext);
+
+        return Container(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+          decoration: BoxDecoration(
+            color: sheetTheme.scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(30),
+            ),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 42,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: sheetTheme.dividerColor,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Choose Theme',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _ThemeOption(
+                  icon: Icons.brightness_auto_rounded,
+                  title: 'System Default',
+                  subtitle: 'Follow your phone theme automatically',
+                  selected: settings.mode == ThemeMode.system,
+                  onTap: () => Navigator.pop(
+                    sheetContext,
+                    ThemeMode.system,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _ThemeOption(
+                  icon: Icons.light_mode_rounded,
+                  title: 'Light',
+                  subtitle: 'Always use the light theme',
+                  selected: settings.mode == ThemeMode.light,
+                  onTap: () => Navigator.pop(
+                    sheetContext,
+                    ThemeMode.light,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _ThemeOption(
+                  icon: Icons.dark_mode_rounded,
+                  title: 'Dark',
+                  subtitle: 'Always use the dark theme',
+                  selected: settings.mode == ThemeMode.dark,
+                  onTap: () => Navigator.pop(
+                    sheetContext,
+                    ThemeMode.dark,
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (selected != null) {
+      await ThemeSettings.instance.setMode(selected);
+    }
+  }
+
+  // =============================================================
   // CURRENCY SELECTOR
   // =============================================================
 
@@ -396,7 +485,8 @@ class ProfilePage extends StatelessWidget {
                         const SizedBox(height: 8),
                         itemBuilder: (context, index) {
                           final currency = AppCurrency.values[index];
-                          final selected = currency == currencyState.currency;
+                          final selected =
+                              currency == currencyState.currency;
 
                           return _buildCurrencyOption(
                             context,
@@ -451,7 +541,10 @@ class ProfilePage extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 12,
+          ),
           decoration: BoxDecoration(
             color: selected
                 ? AppColors.primary.withValues(alpha: 0.10)
@@ -533,6 +626,89 @@ class ProfilePage extends StatelessWidget {
                   height: 26,
                 ),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ThemeOption extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _ThemeOption({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Material(
+      color: selected
+          ? AppColors.primary.withValues(alpha: 0.10)
+          : (theme.brightness == Brightness.dark
+          ? AppColors.darkSurface
+          : AppColors.lightSurface),
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 12,
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: Icon(
+                  icon,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.textTheme.bodySmall?.color
+                            ?.withValues(alpha: 0.55),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (selected)
+                const Icon(
+                  Icons.check_circle_rounded,
+                  color: AppColors.primary,
+                ),
             ],
           ),
         ),

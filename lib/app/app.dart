@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../core/theme/theme_settings.dart';
 
 import '../core/currency/currency_cubit.dart';
 
@@ -101,7 +102,7 @@ class IncomeExpenseApp extends StatefulWidget {
 
 class _IncomeExpenseAppState
     extends State<IncomeExpenseApp> {
-  ThemeMode _themeMode = ThemeMode.light;
+  ThemeMode get _themeMode => ThemeSettings.instance.mode;
 
   // ==========================================================
   // REPOSITORIES
@@ -132,6 +133,7 @@ class _IncomeExpenseAppState
   @override
   void initState() {
     super.initState();
+    ThemeSettings.instance.load();
 
     final firestore =
         FirebaseFirestore.instance;
@@ -237,15 +239,10 @@ class _IncomeExpenseAppState
   // ==========================================================
   // THEME TOGGLE
   // ==========================================================
-
-  void _toggleTheme() {
-    setState(() {
-      _themeMode =
-      _themeMode == ThemeMode.light
-          ? ThemeMode.dark
-          : ThemeMode.light;
-    });
+  Future<void> _toggleTheme() async {
+    await ThemeSettings.instance.toggleManualMode();
   }
+
 
   // ==========================================================
   // BUILD
@@ -253,36 +250,40 @@ class _IncomeExpenseAppState
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'MoneyFlow',
-      theme: LightTheme.theme,
-      darkTheme: DarkTheme.theme,
-      themeMode: _themeMode,
-
-      // Keep one root Navigator for the application.
-      // AuthGate controls which page is shown inside that Navigator.
-      home: AuthGate(
-        authenticatedBuilder: (_) => MainShell(
-          onThemeToggle: _toggleTheme,
+    return AnimatedBuilder(
+animation: ThemeSettings.instance,
+builder: (context, _) {
+return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'MoneyFlow',
+        theme: LightTheme.theme,
+        darkTheme: DarkTheme.theme,
+        themeMode: _themeMode,
+      
+        // Keep one root Navigator for the application.
+        // AuthGate controls which page is shown inside that Navigator.
+        home: AuthGate(
+          authenticatedBuilder: (_) => MainShell(
+            onThemeToggle: _toggleTheme,
+          ),
         ),
-      ),
-
-      // IMPORTANT:
-      // MaterialApp.builder is above the root Navigator. By putting
-      // the authenticated BLoC scope here, every pushed route, dialog,
-      // bottom sheet, and page can access the same BLoCs.
-      builder: (context, child) {
-        return _AuthenticatedBlocScope(
-          transactionRepository: _transactionRepository,
-          budgetRepository: _budgetRepository,
-          walletRepository: _walletRepository,
-          billRepository: _billRepository,
-          categoryRepository: _categoryRepository,
-          savingsGoalRepository: _savingsGoalRepository,
-          child: child ?? const SizedBox.shrink(),
-        );
-      },
+      
+        // IMPORTANT:
+        // MaterialApp.builder is above the root Navigator. By putting
+        // the authenticated BLoC scope here, every pushed route, dialog,
+        // bottom sheet, and page can access the same BLoCs.
+        builder: (context, child) {
+          return _AuthenticatedBlocScope(
+            transactionRepository: _transactionRepository,
+            budgetRepository: _budgetRepository,
+            walletRepository: _walletRepository,
+            billRepository: _billRepository,
+            categoryRepository: _categoryRepository,
+            savingsGoalRepository: _savingsGoalRepository,
+            child: child ?? const SizedBox.shrink(),
+          );
+        },
+      );}
     );
   }
 }
