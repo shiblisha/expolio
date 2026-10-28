@@ -872,9 +872,13 @@ class _RecurringTransactionEditorState
                           ? const SizedBox(
                               width: 22,
                               height: 22,
-                              child: AppLoadingIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
+                              child:CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                valueColor:
+                                AlwaysStoppedAnimation<
+                                    Color>(
+                                  Colors.white,
+                                ),
                               ),
                             )
                           : Text(

@@ -1081,11 +1081,13 @@ class _AddGoalMoneyPageState
                           width: 20,
                           height: 20,
                           child:
-                          AppLoadingIndicator(
-                            strokeWidth:
-                            2.2,
-                            color: Colors
-                                .white,
+                          CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            valueColor:
+                            AlwaysStoppedAnimation<
+                                Color>(
+                              Colors.white,
+                            ),
                           ),
                         )
                             : const Icon(
