@@ -341,34 +341,34 @@ class DashboardPage extends StatelessWidget {
         ),
 
         // Notification
-        Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: theme.brightness == Brightness.dark
-                ? AppColors.darkSurface
-                : AppColors.lightSurface,
-            shape: BoxShape.circle,
-          ),
-          child: Stack(
-            children: [
-              const Center(child: Icon(Icons.notifications_none_rounded)),
-
-              Positioned(
-                top: 10,
-                right: 11,
-                child: Container(
-                  width: 7,
-                  height: 7,
-                  decoration: const BoxDecoration(
-                    color: AppColors.expense,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+        // Container(
+        //   width: 44,
+        //   height: 44,
+        //   decoration: BoxDecoration(
+        //     color: theme.brightness == Brightness.dark
+        //         ? AppColors.darkSurface
+        //         : AppColors.lightSurface,
+        //     shape: BoxShape.circle,
+        //   ),
+        //   child: Stack(
+        //     children: [
+        //       const Center(child: Icon(Icons.notifications_none_rounded)),
+        //
+        //       Positioned(
+        //         top: 10,
+        //         right: 11,
+        //         child: Container(
+        //           width: 7,
+        //           height: 7,
+        //           decoration: const BoxDecoration(
+        //             color: AppColors.expense,
+        //             shape: BoxShape.circle,
+        //           ),
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+        // ),
       ],
     );
   }

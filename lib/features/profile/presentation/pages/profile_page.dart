@@ -9,6 +9,7 @@ import '../../../../core/currency/currency_state.dart';
 import '../../../../core/enums/app_currency.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../auth/presentation/pages/login_page.dart';
+import '../../../auto_capture/presentation/pages/auto_capture_page.dart';
 
 class ProfilePage extends StatelessWidget {
   final VoidCallback onThemeToggle;
@@ -83,6 +84,22 @@ class ProfilePage extends StatelessWidget {
                     subtitle: settings.label,
                     trailing: const Icon(Icons.chevron_right_rounded),
                     onTap: () => _showThemeSelector(context),
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
+              _buildSettingsTile(
+                context,
+                icon: Icons.auto_awesome_rounded,
+                iconColor: AppColors.primary,
+                title: 'Automatic Expense Capture',
+                subtitle: 'Test UPI and bank notification detection',
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const AutoCapturePage(),
+                    ),
                   );
                 },
               ),

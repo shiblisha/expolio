@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../app/theme/app_colors.dart';
@@ -11,6 +12,7 @@ import '../../../wallet/presentation/bloc/wallet_bloc.dart';
 import '../../../wallet/presentation/bloc/wallet_event.dart';
 import '../../../profile/presentation/pages/management_page.dart';
 import '../../../profile/presentation/pages/profile_page.dart';
+import '../../../auto_capture/presentation/pages/auto_capture_page.dart';
 import '../../../transactions/presentation/pages/add_transaction_page.dart';
 import '../../../transactions/presentation/pages/transactions_page.dart';
 import '../../../goals/presentation/pages/add_goal_money_page.dart';
@@ -30,12 +32,16 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
+  static const MethodChannel _captureChannel =
+  MethodChannel('expolio/notification_capture');
+  bool _openingCaptureFromNotification = false;
 
   late final List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
+    _captureChannel.setMethodCallHandler(_handleCaptureMethodCall);
 
     _pages = [
       const DashboardPage(),
@@ -49,7 +55,47 @@ class _MainShellState extends State<MainShell> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _processRecurringTransactions();
+      _consumeInitialCaptureIntent();
     });
+  }
+
+  @override
+  void dispose() {
+    _captureChannel.setMethodCallHandler(null);
+    super.dispose();
+  }
+
+  Future<void> _handleCaptureMethodCall(MethodCall call) async {
+    if (call.method == 'openAutoCapture') {
+      await _openAutoCaptureFromNotification();
+    }
+  }
+
+  Future<void> _consumeInitialCaptureIntent() async {
+    try {
+      final shouldOpen = await _captureChannel.invokeMethod<bool>(
+        'consumeOpenAutoCaptureIntent',
+      ) ??
+          false;
+      if (shouldOpen) await _openAutoCaptureFromNotification();
+    } catch (_) {
+      // The app can still be opened manually if the notification intent is unavailable.
+    }
+  }
+
+  Future<void> _openAutoCaptureFromNotification() async {
+    if (!mounted || _openingCaptureFromNotification) return;
+    _openingCaptureFromNotification = true;
+    try {
+      await Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => const AutoCapturePage(),
+          settings: const RouteSettings(name: '/auto-expense-capture'),
+        ),
+      );
+    } finally {
+      _openingCaptureFromNotification = false;
+    }
   }
 
   Future<void> _processRecurringTransactions() async {

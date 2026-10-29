@@ -62,6 +62,12 @@ dependencies {
     coreLibraryDesugaring(
         "com.android.tools:desugar_jdk_libs:2.1.4"
     )
+
+    // Native Firebase SDKs are needed because the Android floating overlay
+    // accesses Firebase Auth and Firestore directly from Kotlin.
+    implementation(platform("com.google.firebase:firebase-bom:34.5.0"))
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
 }
 
 flutter {
